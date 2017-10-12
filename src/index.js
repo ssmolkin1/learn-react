@@ -4,7 +4,7 @@ import './index.css';
 
 function Square(props) {
   return (
-    <button className="square" onClick={props.onClick}>
+    <button className="square" onClick={props.onClick} style={props.style}>
       {props.value}
     </button>
   );
@@ -17,7 +17,7 @@ class Board extends React.Component {
         key={i}
         value={this.props.squares[i]}
         onClick={() => this.props.onClick(i)}
-        color = {{backgroundColor: this.props.bgColors[i]}}
+        style={{backgroundColor: this.props.bgColors[i]}}
       />
     );
   }
@@ -55,7 +55,9 @@ class Game extends React.Component {
       }],
       selection: null,
       descending: false,
-      bgColors: Array(9).fill('white'),
+      bgColorHistory: [{
+        bgColor: Array(9).fill('white')
+      }]
     };
   }
   
@@ -64,25 +66,28 @@ class Game extends React.Component {
     const current = history[history.length - 1];
     const squares = current.squares.slice();
     const moveHistory = this.state.moveHistory.slice(0, this.state.stepNumber + 1);
-    let bgColors = this.state.bgColors.slice();
+    const bgColorHistory = this.state.bgColorHistory.slice(0, this.state.stepNumber + 1);
     
-
+    
     if (calculateWinner(squares) || squares[i]) return;
     squares[i] = this.state.xIsNext ? 'X' : 'O';
     
     const winner = calculateWinner(squares);
+    let bgColor = bgColorHistory[bgColorHistory.length - 1];
+    
     if  (winner) {
       for (let i = 0; i < winner.length; i++) {
-        bgColors[winner[i]] = 'yellow'
+        bgColor[winner[i]] = 'yellow'
       }
     }
+
     this.setState({
       history: history.concat([{squares: squares}]),
       stepNumber: history.length,
       xIsNext: !this.state.xIsNext,
       moveHistory: moveHistory.concat({move: [Math.floor(i/3) + 1, (i % 3) + 1]}),
       selection: null,
-      bgColors: bgColors
+      bgColorHistory: bgColorHistory.concat([{bgColor: bgColor}])
     });
   }
 
@@ -98,6 +103,9 @@ class Game extends React.Component {
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
     const moveHistory= this.state.moveHistory;
+    const bgColorHistory = this.state.bgColorHistory;
+    const curentBgColor = bgColorHistory[this.state.stepNumber];
+    
     
     const moves = history.map((step, move) => {
       const style = this.state.selection === move ? {"fontWeight": "bold"} : null
@@ -132,7 +140,7 @@ class Game extends React.Component {
           <Board 
             squares = {current.squares}
             onClick = {(i) => this.handleClick(i)}
-            bgColors = {this.state.bgColors}
+            bgColors = {curentBgColor.bgColor}
           />
         </div>
         <div className="game-info">
