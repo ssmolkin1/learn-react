@@ -17,7 +17,7 @@ class Board extends React.Component {
         key={i}
         value={this.props.squares[i]}
         onClick={() => this.props.onClick(i)}
-        color={{"backgroundColor": this.props.bgColors[i]}}
+        color = {{backgroundColor: this.props.bgColors[i]}}
       />
     );
   }
@@ -64,17 +64,18 @@ class Game extends React.Component {
     const current = history[history.length - 1];
     const squares = current.squares.slice();
     const moveHistory = this.state.moveHistory.slice(0, this.state.stepNumber + 1);
-    const winner = calculateWinner(squares);
     let bgColors = this.state.bgColors.slice();
     
+
+    if (calculateWinner(squares) || squares[i]) return;
+    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    
+    const winner = calculateWinner(squares);
     if  (winner) {
       for (let i = 0; i < winner.length; i++) {
         bgColors[winner[i]] = 'yellow'
       }
     }
-
-    if (calculateWinner(squares) || squares[i]) return;
-    squares[i] = this.state.xIsNext ? 'X' : 'O';
     this.setState({
       history: history.concat([{squares: squares}]),
       stepNumber: history.length,
