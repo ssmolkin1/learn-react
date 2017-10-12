@@ -14,9 +14,10 @@ class Board extends React.Component {
   renderSquare(i) {
     return (
       <Square
+        key={i}
         value={this.props.squares[i]}
         onClick={() => this.props.onClick(i)}
-        style={{"background-color": this.props.bgColors[i]}}
+        color={{"backgroundColor": this.props.bgColors[i]}}
       />
     );
   }
@@ -32,7 +33,7 @@ class Board extends React.Component {
         cells.push(cell);
       }
       
-      let row =  <div className="board-row">{cells}</div>;
+      let row =  <div key={i} className="board-row">{cells}</div>;
       rows.push(row);        
     }
 
@@ -55,7 +56,6 @@ class Game extends React.Component {
       selection: null,
       descending: false,
       bgColors: Array(9).fill('white'),
-      winner: null
     };
   }
   
@@ -64,6 +64,15 @@ class Game extends React.Component {
     const current = history[history.length - 1];
     const squares = current.squares.slice();
     const moveHistory = this.state.moveHistory.slice(0, this.state.stepNumber + 1);
+    const winner = calculateWinner(squares);
+    let bgColors = this.state.bgColors.slice();
+    
+    if  (winner) {
+      for (let i = 0; i < winner.length; i++) {
+        bgColors[winner[i]] = 'yellow'
+      }
+    }
+
     if (calculateWinner(squares) || squares[i]) return;
     squares[i] = this.state.xIsNext ? 'X' : 'O';
     this.setState({
@@ -71,7 +80,8 @@ class Game extends React.Component {
       stepNumber: history.length,
       xIsNext: !this.state.xIsNext,
       moveHistory: moveHistory.concat({move: [Math.floor(i/3) + 1, (i % 3) + 1]}),
-      selection: null
+      selection: null,
+      bgColors: bgColors
     });
   }
 
@@ -89,7 +99,7 @@ class Game extends React.Component {
     const moveHistory= this.state.moveHistory;
     
     const moves = history.map((step, move) => {
-      const style = this.state.selection === move ? {"font-weight": "bold"} : null
+      const style = this.state.selection === move ? {"fontWeight": "bold"} : null
       const desc = move ? 
         'Go to move #' + move + ' (' + moveHistory[move].move + ')':
         'Go to game start';
